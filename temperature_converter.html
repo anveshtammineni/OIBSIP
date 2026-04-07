@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Converter</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: rgba(15, 23, 42, 0.95);
+            --panel-soft: rgba(30, 41, 59, 0.9);
+            --text: #e2e8f0;
+            --muted: rgba(226, 232, 240, 0.7);
+            --accent: #7c3aed;
+            --accent-strong: #5b21b6;
+            --error: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: Inter, system-ui, sans-serif;
+            background: radial-gradient(circle at top left, #1f2937 0%, #0b1220 45%, #020617 100%);
+            color: var(--text);
+        }
+
+        .card {
+            width: min(520px, calc(100% - 32px));
+            padding: 32px;
+            border-radius: 24px;
+            background: var(--panel);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h1 {
+            margin: 0 0 16px;
+            font-size: clamp(2rem, 2.5vw, 2.6rem);
+            letter-spacing: -0.04em;
+        }
+
+        .card p {
+            margin: 0 0 28px;
+            color: var(--muted);
+            line-height: 1.75;
+        }
+
+        .field-group {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--muted);
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            font: inherit;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        button:focus {
+            outline: none;
+            border-color: rgba(124, 58, 237, 0.8);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 46px;
+            background-image: linear-gradient(45deg, transparent 50%, var(--text) 50%),
+                              linear-gradient(135deg, var(--text) 50%, transparent 50%);
+            background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        option {
+            color: var(--text);
+            background: #0f172a;
+        }
+
+        .unit-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            box-shadow: 0 18px 40px rgba(124, 58, 237, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 24px 50px rgba(124, 58, 237, 0.28);
+        }
+
+        .result-card {
+            padding: 22px 22px 18px;
+            border-radius: 18px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .result-card strong {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .result-message {
+            color: var(--muted);
+        }
+
+        .error {
+            color: var(--error);
+        }
+
+        @media (max-width: 520px) {
+            .unit-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="card" aria-labelledby="converter-title">
+        <h1 id="converter-title">Temperature Converter</h1>
+        <p>Type a temperature, select the input unit, and convert to a different scale. Kelvin support is included for precise scientific results.</p>
+
+        <div class="field-group">
+            <div>
+                <label for="temperature-input">Temperature value</label>
+                <input id="temperature-input" type="text" placeholder="Enter a number like 36.6" inputmode="decimal" autocomplete="off">
+            </div>
+
+            <div class="unit-row">
+                <div>
+                    <label for="source-unit">From unit</label>
+                    <select id="source-unit" aria-label="Source temperature unit">
+                        <option value="C">Celsius (°C)</option>
+                        <option value="F">Fahrenheit (°F)</option>
+                        <option value="K">Kelvin (K)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="target-unit">To unit</label>
+                    <select id="target-unit" aria-label="Target temperature unit">
+                        <option value="F">Fahrenheit (°F)</option>
+                        <option value="C">Celsius (°C)</option>
+                        <option value="K">Kelvin (K)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-row">
+            <button id="convert-btn" type="button">Convert</button>
+            <button id="reset-btn" type="button">Reset</button>
+        </div>
+
+        <div class="result-card" aria-live="polite" id="result-card">
+            <strong id="result-text">Awaiting input...</strong>
+            <p class="result-message" id="result-message">Enter a temperature and choose units to see the converted value.</p>
+        </div>
+    </section>
+
+    <script>
+        const input = document.getElementById('temperature-input');
+        const sourceUnit = document.getElementById('source-unit');
+        const targetUnit = document.getElementById('target-unit');
+        const convertBtn = document.getElementById('convert-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const resultText = document.getElementById('result-text');
+        const resultMessage = document.getElementById('result-message');
+
+        function formatValue(value) {
+            return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+        }
+
+        function convertTemperature(value, from, to) {
+            if (from === to) return value;
+
+            let celsius;
+
+            switch (from) {
+                case 'C':
+                    celsius = value;
+                    break;
+                case 'F':
+                    celsius = (value - 32) * 5 / 9;
+                    break;
+                case 'K':
+                    celsius = value - 273.15;
+                    break;
+                default:
+                    throw new Error('Unsupported source unit');
+            }
+
+            switch (to) {
+                case 'C':
+                    return celsius;
+                case 'F':
+                    return celsius * 9 / 5 + 32;
+                case 'K':
+                    return celsius + 273.15;
+                default:
+                    throw new Error('Unsupported target unit');
+            }
+        }
+
+        function displayResult(value, unit) {
+            resultText.textContent = `${formatValue(value)} °${unit}`;
+            resultText.classList.remove('error');
+            resultMessage.textContent = 'Converted temperature displayed above.';
+        }
+
+        function displayError(message) {
+            resultText.textContent = 'Invalid input';
+            resultText.classList.add('error');
+            resultMessage.textContent = message;
+        }
+
+        convertBtn.addEventListener('click', () => {
+            const rawValue = input.value.trim();
+            const value = Number(rawValue);
+
+            if (rawValue === '' || Number.isNaN(value)) {
+                displayError('Please enter a valid numeric temperature value.');
+                return;
+            }
+
+            const from = sourceUnit.value;
+            const to = targetUnit.value;
+            const result = convertTemperature(value, from, to);
+
+            displayResult(result, to);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            input.value = '';
+            sourceUnit.value = 'C';
+            targetUnit.value = 'F';
+            resultText.textContent = 'Awaiting input...';
+            resultText.classList.remove('error');
+            resultMessage.textContent = 'Enter a temperature and choose units to see the converted value.';
+        });
+
+        sourceUnit.addEventListener('change', () => {
+            if (sourceUnit.value === targetUnit.value) {
+                const nextUnit = sourceUnit.value === 'C' ? 'F' : sourceUnit.value === 'F' ? 'K' : 'C';
+                targetUnit.value = nextUnit;
+            }
+        });
+
+    </script>
+</body>
+</html>
